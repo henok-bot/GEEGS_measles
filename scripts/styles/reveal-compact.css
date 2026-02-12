@@ -1,0 +1,58 @@
+
+/* ----- cleaned reveal-compact.css ----- */
+
+/* base fonts + compact size */
+.reveal {
+  font-family: Arial, system-ui, -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+}
+.reveal .slides {
+  font-size: 0.65em;
+}
+
+/* slide content: compact but with a safe left gutter to avoid fullscreen clipping */
+.reveal .slides section {
+  box-sizing: border-box !important;
+  /* safe inner padding: top/bottom 28px, left/right 36px */
+  padding: 12px 12px 12px 12px !important; /* <-- change the left gutter here if needed */
+  margin: 0 !important;
+  width: calc(100% - 72px) !important;
+  max-width: none !important;
+}
+
+/* code block styling */
+.reveal pre, .reveal code {
+  font-family: Consolas, "Courier New", monospace;
+  line-height: 1.1;
+  font-size: 0.6em;
+  max-height: 55vh;
+  overflow: auto;
+}
+
+/* lists and slide number */
+.reveal ul, .reveal ol { margin-top: 0.2em; margin-bottom: 0.2em; line-height: 1.15; }
+.reveal .slide-number {
+  right: 12px !important;
+  bottom: 10px !important;
+  font-size: 0.4em !important;
+}
+
+/* logos header - nudged in a bit from the corner */
+.header-logos {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-bottom:8px;
+  padding-left: 8px; /* small nudge */
+}
+.header-logos img { height:36px; object-fit:contain; }
+
+/* helper: ensure overflow visibility so small badges aren't clipped */
+.reveal, .reveal .slides { overflow: visible !important; }
+
+/* maintain stable transform origin to reduce weird clipping on some displays */
+.reveal .scale { transform-origin: center top !important; }
+
+
+
+
+

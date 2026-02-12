@@ -1,0 +1,917 @@
+---
+title: "R refresher + Data cleaning pipeline — training"
+format: # pdf  
+  revealjs:
+    transition: slide
+    slide-number: true
+    center: false
+    ratio: "16:9"
+    css: styles/reveal-compact.css
+theme: simple
+editor: visual
+execute: 
+  echo: true
+  warning: false
+  include: true
+  error: false
+---
+
+<img src="images/logo.png" alt="CSID NET Ethiopia"/>
+
+## Training module objectives
+
+-   **Introduce practical familiarity with R**: Provide participants with hands-on exposure to how R operates, focusing on applied workflows rather than formal syntax or theoretical depth.
+
+-   **Demonstrate implemented core data cleaning and basic analytical pipeline**: Enable participants to understand and replicate standard epidemiological data preparation and analysis steps using R.
+
+-   **Promote self-sufficient application through practice**: Equip participants with annotated code and synthetic datasets, allowing them to independently practice, modify, and extend the demonstrated workflows.
+
+# R and R Studio
+
+## What is R?
+
+-   R is a **language and environment** for statistical computing and graphics
+
+-   It is **open-source and freely available**, developed in the early 1990s by *Ross Ihaka* and *Robert Gentleman* at the University of Auckland.
+
+-   Inspired by the **S Language** for statistical computing.
+
+-   Designed for **data analysis, visualization, and reproducible research**.
+
+-   R makes it **easy to write your own functions and automate analyses**.
+
+    Visit: <https://cran.r-project.org>
+
+🧩 *Demo cue:*
+
+Open R (without RStudio) briefly to see the raw console interface and run
+
+```{r, echo=TRUE, results='hide'}
+2 + 2
+mean(c(1,2,3))
+# 4 + 4
+plot(3,6)
+```
+
+## **What is RStudio?**
+
+-   **RStudio** is a *user-friendly Integrated Development Environment (IDE)* for R.
+
+    It provides:
+
+    -   A **console** for running R commands
+
+    -   A **script editor** with syntax highlighting
+
+    -   **Plot**, **Environment**, and **Files** panes for organized workflow
+
+    -   Built-in tools for **package management, debugging, and visualization.**
+
+-   Both **R and RStudio** must be installed — RStudio runs R *under the hood*.
+
+-   Visit: <https://posit.co/>
+
+------------------------------------------------------------------------
+
+The RStudio is subdivided in four panels:
+
+1.  Source or Script editor
+
+2.  Console, Terminal, Background jobs
+
+3.  Environment, History, Connections, Tutorial
+
+4.  Files, Plots, Packages, Help, Viewer, Presentation
+
+<img src="images/Rstudio_console.png" alt="Rstudio Console"/>
+
+🧩 *Demo cue:*\
+See RStudio interface and explore **four panes** (Script, Console, Environment/History, Plots/Files/Help)
+
+## **Installing R and RStudio**
+
+1.  **Install R first** → <https://cran.r-project.org>
+
+-   Choose your OS (Windows, Mac, Linux)
+
+-   Example: *Windows → “install R for the first time” → “Download R 4.x.x for Windows”*.
+
+-   Follow the on-screen steps (keep defaults, click “Next”, then “Finish”)
+
+2.  **Then install RStudio** → https://posit.co/download/rstudio-desktop/
+
+-   Choose *RStudio Desktop (Free)* version.
+
+-   Run the downloaded installer and follow the prompts.
+
+⚠️ **Tip:**\
+Make sure you have *administrator rights* or install it in a directory where you have *write permissions*.
+
+## **Updating R and RStudio**
+
+-   R version is shown at startup or via
+
+```{r , echo=TRUE, results='hide'}
+sessionInfo()
+```
+
+-   **To update R:**
+
+    -   Reinstall from CRAN, or
+
+    -   On Windows: use `installr::updateR()`
+
+-   **To update RStudio:**
+
+    -   Click *Help → Check for Updates*, or
+
+    -   Re install from [posit.co](https://posit.co/)
+
+💡 You can temporarily run an older R version via *Tools → Global Options → R Version* in RStudio.
+
+## **Why Use R in Epidemiology?**
+
+-   Handles **large and complex datasets** (routine surveillance, line lists, etc.)
+
+-   Supports **statistical modeling, mapping, and visualization**
+
+-   Encourages **reproducibility** and transparent workflows
+
+-   Huge community and resources, e.g. *Epidemiologist R Handbook*
+
+-   Integrates easily with **Quarto, Markdown, GitHub, and dashboards**
+
+## **What Are Packages?**
+
+-   Packages are **collections of R functions and documentation** designed for specific tasks.
+
+-   They extend R’s capabilities beyond the base installation.
+
+-   Developed and shared by the **R community** through CRAN (Comprehensive R Archive Network).
+
+-   Most data analysis in R uses functions from additional packages — e.g.
+
+    -   `tidyverse` for data cleaning and plotting
+
+    -   `rio` for data import/export
+
+    -   `here` for file management
+
+-   R makes it easy to **install, load, and share** packages.
+
+💡 *Analogy:*\
+Think of R as a **library** and each package as a **book of functions** you can borrow.
+
+## **Installing and Loading Packages**
+
+-   **Two main steps to use any package:**
+
+    1.  **Install (once)** → downloads it to your library
+
+    2.  **Load (each session)** → makes it active for use
+
+**Install**
+
+`install.packages("tidyverse")`
+
+Load
+
+`library(tidyverse)`
+
+🧩 Tip
+
+There are additional, some times more preferable,ways to to load packages.
+
+-   Using GUI(clicking on the check mark next to packages
+
+-   `require(packagename)` (What do you think is the advantage of this?)
+
+-   Using package manage functions (pacman)
+
+## **Getting Help and Datasets in R**
+
+R has powerful built-in help and extensive online support
+
+-   To get help from extensive built information in R, run `?`, `help("")`, `help.search("")` and `??`
+
+    Run the following and compare the outputs
+
+    -   `?mean`
+    -   `help("plot")`
+    -   `help.search("regression")`
+    -   `??regression`
+
+-   There are a lot of data sets stored in R and different packages. (run `data()` to see the list of data)
+
+```{r echo=TRUE, results='hide'}
+# Example datasets
+data("ChickWeight")
+head(ChickWeight)
+```
+
+## How to manage our work in R?
+
+**What is the Working Directory?**
+
+-   The **root folder** where R looks for and saves files
+
+-   Appears at the top of the **Console**
+
+-   Check it anytime with
+
+    ```{r echo=TRUE, results='hide'}
+    getwd()
+
+    ```
+
+-   Change the working directory
+
+    `setwd("C:/Documents/my_folder") # Specify your folder path`
+
+⚠️ `setwd()` paths are computer-specific — this can break code sharing.
+
+## **Why Manage Projects with .Rproj in RStudio?**
+
+-   Keeps all scripts, data, and outputs **organized** in one folder
+
+-   Simplifies file paths and collaboration
+
+-   Avoids errors from “setwd()” and manual directory changes
+
+-   Makes your analysis **portable** and **reproducible**
+
+💡 *Think of an R Project as a container for your work — everything you need lives inside it.*
+
+**Creating and Using R Projects**
+
+1.  In RStudio:\
+    **File → New Project → New Directory → New Project**
+2.  Name your project (e.g., *Intro_to_R_training*)
+3.  All files, scripts, and folders go inside that folder
+4.  Open it next time by clicking the `.Rproj` file — no need for `setwd()`
+
+## Exercise (15 mins)
+
+1.  Create a new folder named **`r_basics`** on your computer.Inside it, create three subfolders: `data` (for datasets), `scripts` (for your R scripts) and `outputs` (for exported results)
+
+    -   Create a new **R Project** within the `r_basics` folder and open it in RStudio
+
+    -   Inside the `scripts` folder, create a new R script named **`0_name_script.R`** Add you name and date at the top as comments.
+
+        ```{r, echo=TRUE}
+        # Author: Henok Tadesse
+        # Date: 2025-10-20
+        # Script: 0_henok_script.R
+        # Title: 
+        ```
+
+2.  Install and load the package `pacman` . Then using the right function from `pacman` install and load the packages rio, janitor and stringr. (*Hint: review help in `p_load`* *to explore its functionality*)
+
+------------------------------------------------------------------------
+
+3.  Explore and List the loaded packages in your environment. And Try to unload some of the packages(*Hint: review help for `detach`*)
+
+4.  Import the built-in **`AirPassengers`** dataset and Calculate the **mean** number of passengers per month. *(Hint: explore `mean` and try adding the argument `na.rm = TRUE`.)*
+
+5.  Import the built in **`precip`** dataset and calculate the total annual rainfall across US(*Hint: explore `sum`*)
+
+# R Basics
+
+## Outline
+
+-   Basic operators and functions
+
+-   Objects
+
+-   Data types/classes
+
+## Mathematical Operators and Functions
+
+**Arithmetic operators**
+
+| Operation      | Example  | Output |
+|----------------|----------|--------|
+| Addition       | `2 + 3`  | `5`    |
+| Subtraction    | `2 - 3`  | `-1`   |
+| Multiplication | `2 * 3`  | `6`    |
+| Division       | `30 / 5` | `6`    |
+| Exponent       | `2^3`    | `8`    |
+
+**Mathematical operators**
+
+| Purpose        | Function               | Example                    |
+|----------------|------------------------|----------------------------|
+| Rounding       | `round(x, digits = n)` | `round(2.345, 2)` → `2.35` |
+| Ceiling (up)   | `ceiling(x)`           | `ceiling(2.1)` → `3`       |
+| Floor (down)   | `floor(x)`             | `floor(2.9)` → `2`         |
+| Absolute value | `abs(x)`               | `abs(-5)` → `5`            |
+| Square root    | `sqrt(x)`              | `sqrt(16)` → `4`           |
+| Logarithms     | `log(x)`, `log10(x)`   | `log(10)` → `2.30`         |
+
+```         
+Order of operations follows standard math rules , use parentheses to control priority.
+```
+
+## Assignment operators
+
+-   Assignment operators are used to store values into objects.
+
+-   They are among the most fundamental building blocks of R.
+
+| Operator | Example | Meaning / Use |
+|----|----|----|
+| `<-` | `x <- 10` | Assigns value 10 to `x` (recommended in R) |
+| `->` | `10 -> x` | Same as above, but reversed direction |
+| `=` | `x = 10` | Also assigns, but less used for object creation (mainly for function arguments) |
+
+-   Although `=` can also assign, **`<-` is preferred** for clarity and consistency in scripts.
+
+-   Other operators can also have assignment function in different contexts. (`%<>%` - magrittr pipe and `<<-` - Global or super assignment, ...)
+
+-   Always use spaces around operators for readability:
+
+🧩 Practice
+
+-   Assign your height and weight and calculate your bmi. Then round it to one digit.
+
+## Relational operators
+
+Relational operators compare values and are often used when defining new variables and subsets of dataset
+
+| Purpose          | Operator | Example      | Result  |
+|------------------|----------|--------------|---------|
+| Equal to         | `==`     | `"A" == "a"` | `FALSE` |
+| Not equal to     | `!=`     | `2 != 0`     | `TRUE`  |
+| Greater than     | `>`      | `4 > 2`      | `TRUE`  |
+| Less than        | `<`      | `4 < 2`      | `FALSE` |
+| Greater or equal | `>=`     | `6 >= 4`     | `TRUE`  |
+| Less or equal    | `<=`     | `6 <= 4`     | `FALSE` |
+
+-   `==` is comparison; `=` is assignment.
+
+-   R is case-sensitive: "Positive" != "positive"
+
+🧩 Practice
+
+Compare whether your bmi is smaller or greater than your peer.
+
+## Logical operators
+
+-   Logical operators, such as AND and OR, are often used to connect relational operators and create more complicated criteria.
+-   Complex statements might require parentheses ( ) for grouping and order of application.
+-   Logical operators are especially useful when subsetting data or defining new variables
+
+| Purpose  | Operator | Example                       | Result  |
+|----------|----------|-------------------------------|---------|
+| AND      | `&`      | `(5 > 3) & (2 < 4)`           | `TRUE`  |
+| OR       | `|`      | `(5 > 3) | (2 < 4)`           | `TRUE`  |
+| NOT      | `!`      | `!(5 > 3)`                    | `FALSE` |
+| Grouping | `( )`    | `(5 > 3) & (4 < 2) | 1 == 1)` | `TRUE`  |
+
+-   Missing data in R is represented as `NA` (not quoted).
+
+-   To check for missing or non-missing data
+
+```{r, echo=TRUE}
+is.na(7)
+!is.na(7)
+```
+
+💡 Bonus
+
+Try to use `&&` and `||`(Short circuited) instead of `&` and `|` for comparing objects and try to identify their difference.
+
+## Commonly used symbols and functions
+
+`:` - To create and refer to a sequence
+
+```{r, echo=TRUE}
+ 1:10
+```
+
+`$` - To access a column or list element by name
+
+```{r , echo=TRUE, results='hide'}
+data("iris")
+head(iris)
+iris$Sepal.Length
+```
+
+`[]` - Index brackets, to access and address data elements using their index.
+
+⚠️Tip - ‘First row, than catch a shark’(first rows, then columns, then sheets)
+
+```{r, echo=TRUE, results='hide'}
+iris[,1]
+iris[1,]
+iris[,]
+iris[1:5, c(1,3)]
+iris[,-1] # remove 1st column
+iris[1:5, c("Sepal.Length", "Petal.Length")]
+iris[iris$Species == "setosa", ]
+
+```
+
+`c()` - used to create a variable that is a combination (= collection, = concatenation) of several elements.
+
+```{r, echo=TRUE, results='hide'}
+f <- c(1, 3, 5, 7, 9)
+g <- c(1, "he", 4L, TRUE)
+my_list <- list(name = "Alice", age = 30, scores = c(85, 92, 78))
+```
+
+## Pipe Operators(`|>`or`%>%`)
+
+-   Introduced in R 4.1.0, the **pipe operator(`|>`**) allows you to pass the result of one function directly into the next.
+
+-   **Pipes/tidyverse(`%>%`**) - send an object from function to function - emphasis is on the *action*, not the object
+
+-   Pipes come from the package **magrittr**, which is automatically included in packages **dplyr** and **tidyverse,**
+
+-   Pipes are best when a sequence of actions must be performed on one object
+
+    ⚠️Tip - Think of piping as saying "then"
+
+    ```{r,echo=TRUE, results='hide'}
+    iris |> head() |> summary()
+
+    library(tidyverse)
+    iris %>% dplyr::filter(Species == "setosa") %>% 
+      dplyr::select(Sepal.Length) %>% pull() %>%  mean()
+
+    ```
+
+💡 Bonus
+
+Explore how the pipe operator `%<>%` differs from the above?
+
+## Objects
+
+-   Everything you store in R - datasets, variables, a number, even outputs such as graphs - are objects which are assigned a name and can be referenced in later commands.
+
+-   An object exists when you have assigned it a value .
+
+-   When it is assigned a value, the object appears in the Environment. It can then be operated upon, manipulated, changed, and re-defined.
+
+-   To store its data R uses two different data structures:
+
+    -   Atomic data structures - can take only one data type Examples are: vectors, arrays and matrices
+
+    -   Recursive data structures - can accommodate more than one data type Examples include: data frames, lists and functions.
+
+⚠️Tip - you can use `is.atomic()` and `is.recursive()` to test your objects structure.
+
+------------------------------------------------------------------------
+
+<img src="images/data_structures.png" alt="Data Structures"/>
+
+In epidemiology data frames and vectors are mostly encountered.
+
+------------------------------------------------------------------------
+
+| Common structure | Explanation | Example |
+|----|----|----|
+| Vectors | A container for a sequence of singular objects, all of the same class (e.g. numeric, character). | **“Variables” (columns) in data frames are vectors** (e.g. the column `epi_week`). |
+| Data Frames | Vectors (e.g. columns) that are bound together that all have the same number of rows. | `linelist` is a data frame. |
+
+## Data types/Classes
+
+-   Everything in R is an object, and every object has a class that tells R how to handle it — whether it’s text, a number, a dataset, or something else.
+
+-   Understanding classes is crucial for data cleaning, transformation, and analysis.
+
+-   You can check an object’s class using
+
+    ```{r}
+    class(iris)
+    class(iris$Sepal.Length)
+    ```
+
+-   R sometimes changes classes automatically — for example, mixing a number and a word in one vector will make all values character
+
+```{r , echo=TRUE, results='hide'}
+x <- c(1, 2, "three")
+class(x)  
+
+```
+
+-   Also, you can test object types directly:
+
+```{r, echo=TRUE, results='hide'}
+is.numeric(x)
+is.character(x)
+is.factor(x)
+
+```
+
+------------------------------------------------------------------------
+
+| **Class** | **What it is** | **Examples** | **Notes** |
+|------------------|------------------|------------------|------------------|
+| **Character** | Text or words inside quotation marks | `"Ethiopia"`, `"Malaria data"` | Cannot perform math operations |
+| **Integer** | Whole numbers only (no decimals) | `5L`, `-12L`, `as.integer(7.8)` | The **L** ensures R stores it as an integer |
+| **Numeric** | Numbers that can include decimals | `23.5`, `-7`, `100` | Default for numeric data in R |
+| **Logical** | TRUE/FALSE values | `TRUE`, `FALSE`, `1 > 2` | Used for conditions and filtering |
+| **Factor** | Categorical variable with levels | `factor(c("High", "Medium", "Low"))` | Great for grouped or ordered categories |
+| **Date** | Stores calendar dates | `as.Date("2025-10-20")` | Enables date calculations |
+
+------------------------------------------------------------------------
+
+| **Class** | **What it is** | **Examples** | **Notes** |
+|------------------|------------------|------------------|------------------|
+| **data.frame** | Table-like structure (rows × columns) | `data.frame(age=1:3, sex=c("M","F","M"))` | Default structure for datasets |
+| **tibble** | Modern data frame that prints nicely | `tibble::as_tibble(df)` | Keeps column types stable |
+| **list** | Container that can hold mixed objects | `list(a=1, b="text", c=df)` | Very flexible structure |
+
+## Converting Between classes
+
+Use these functions to change data types:
+
+| **Function**     | **Action**           |
+|------------------|----------------------|
+| `as.character()` | Convert to character |
+| `as.numeric()`   | Convert to numeric   |
+| `as.integer()`   | Convert to integer   |
+| `as.Date()`      | Convert to date      |
+| `factor()`       | Convert to factor    |
+
+Example:
+
+```{r, echo=TRUE, results='hide'}
+age <- c("23", "19", "45")
+as.numeric(age)   # Converts character numbers to numeric
+
+```
+
+## Common object types
+
+-   **Integer**:are whole numbers. Add an L suffix or use as.integer() to make sure R stores it as integer.If you multiply an integer with a numeric, the result becomes numeric (R promotes to the more flexible type)
+-   **Numeric** - Default for all numeric values, including decimals
+-   **Logical** - Stores `TRUE` or `FALSE` — often from comparisons. It is used in filtering and conditional statements
+
+```{r, echo=TRUE, results='hide'}
+data("mtcars")
+mtcars[mtcars$mpg > 20, ] 
+```
+
+-   **Factor** - Categorical data with levels.
+
+```{r, echo=TRUE, results='hide'}
+sex <- factor(c("Male", "Female", "Female"))
+levels(sex)
+```
+
+-   Ordered factors
+
+```{r, echo=TRUE, results='hide'}
+satisfaction <- factor(c("Low", "Medium", "High"),levels = c("Low", "Medium", "High"),
+                       ordered = FALSE)
+```
+
+-   You can change reference levels using:
+
+```{r, echo=TRUE, results='hide'}
+relevel(satisfaction, "Medium")
+```
+
+## Exercise - 30 min
+
+1.  Import the built-in `mtcars` dataset and:
+
+    -   Check the class of `mpg`, `cyl`, and the whole dataset.
+
+    -   Convert `cyl` to a factor and verify.
+
+    -   Create a new column `is_efficient` that is TRUE if `mpg > 25`.
+
+    -   Count how many cars are efficient using `sum().`
+
+2.  Create a list named car_info that contains:
+
+    -   A character vector of model names `(rownames(mtcars)[1:3])`
+
+    -   The subset of their data (`mtcars[1:3, ]`)
+
+    -   The mean of their hp values
+
+Check the class of each component using \$.
+
+# Working with imported data sets
+
+```{r, include=FALSE}
+library(pacman)
+pacman::p_load(rio, here, tidyverse, janitor, stringr)
+
+wor_x <- import(here("raw_data/lim_cos.csv"))
+mal_bur <- import(here("raw_data/mal_burden_2025_week_4_to_21.xlsx"), which = 2, skip = 2)
+
+```
+
+## Outline
+
+## Introduction
+
+-   This session briefly highlights core funcitons used data cleaning/handling with practical examples.
+-   The session emphasizes use of the functions from the `tidyverse` family of R packages.
+-   Many of the functions actually belong to `dplyr` packages.(data.frame plier)
+-   Other packages in dplyr include: `ggplot2`, `tidyr`, `stringr`, `tibble`, `purrr`, `magrittr`, and `forcats`
+
+| **Function** | **Utility** | **Package** |
+|------------------------|------------------------|------------------------|
+| `%>%` | “Pipe” operator — passes output of one function to the next | **magrittr** |
+| `mutate()` | Create, transform, or redefine columns | **dplyr** |
+| `select()` | Keep, remove, or choose columns | **dplyr** |
+| `rename()` | Rename columns | **dplyr** |
+
+------------------------------------------------------------------------
+
+| **Function** | **Utility** | **Package** |
+|----|----|----|
+| `clean_names()` | Standardize and simplify column names | **janitor** |
+| `filter()` | Keep specific rows that meet conditions | **dplyr** |
+| `as.character()`, `as.numeric()`, `as.Date()` | Convert column types (class conversion) | **base R** |
+| `across()` | Apply transformations across multiple columns | **dplyr** |
+| `distinct()` | Remove duplicate rows | **dplyr** |
+| `arrange()` | Sort rows | **dplyr** |
+| `rowwise()` | Apply operations within each row | **dplyr** |
+| `replace_na()`, `na_if()`, `coalesce()` | Handle and re-code missing values | **tidyr** |
+
+------------------------------------------------------------------------
+
+<img src="images/Neg_bin simulated data vs original.png" alt="Synthetic data Alert"/>
+
+⚠️ Synthetic data alert - All data used for this training has been rendered falsified while retaining pattern of data(negbin jittered using locally defined funciton)
+
+## Importing data sets
+
+-   Even though R has wide array of packages and functions to create synthetic data,
+
+most analytic work starts importing external data sets.
+
+-   There are different ways of importing data sets in to R.
+
+    1.  Using the GUI importer of R studio(Environment → Import Dataset)
+
+    2.  Using file specific packages ( readxl , readr and etc.)
+
+        ```{r, }
+        library(readr)
+        #wor_x <- read_csv("raw_data/lim_cos.csv") #relative path
+        wor_x <- read_csv("/Users/henoktadesse/Library/CloudStorage/OneDrive-ITG/Documents/Hanko 2/R projects/Data_cleaning_training/raw_data/lim_cos.csv") # Absolute path
+        ```
+
+    3.  Using `rio::import()` with `here::here()` - **Recommended**
+
+        ```{r}
+        library(rio)
+        library(here)
+        wor_x <- import(here("raw_data", "lim_cos.csv"))
+
+        ```
+
+-   `rio` automatically detects file types (Excel, CSV, SPSS, etc.) and `here()` ensures reproducibility —
+
+paths work regardless of computer
+
+## Initial Data Exploration
+
+-   Before importing any data set, it is good to understand tidy data principles.
+
+-   The first step after importing data sets is initial exploration to make sure appropriate importation and retainement of data properties.
+
+-   The following functions enable us to see different aspects of our data
+
+    -   `str()` → structural view (types, dimensions)
+
+    -   `glimpse()` → tidy alternative with readable format
+
+    -   `skim()` → quick descriptive summary for each variable
+
+    -   `tabyl()` → frequency table useful for categorical columns
+
+-   `class()`, `names()` and `colnames()` can be used to explore the data class and column names
+
+-   `range()` or `summary()` - to see the distribution of specific numeric columns
+
+-   `colSums(is.na())` or `sum(is.na())` to count NAs in each column and the total data set
+
+------------------------------------------------------------------------
+
+💡 Quick questions
+
+At this point you can use indexing to explore different parts of the data. For example Try to answer the following questions.
+
+1.  How many week are included in the year 2025?
+
+2.  What number of weeks have the woreda tested above 1000 febrile cases?
+
+3.  Which week and year among the given weeks has the woreda reported the highest number of cases?
+
+    ```{r, include=FALSE}
+    wor_x[wor_x$`Total Malaria CCCAse` == max(wor_x$`Total Malaria CCCAse`, na.rm = T),1:2] # NAS sneek since they dont give true
+    wor_x[which.max(wor_x$`Total Malaria CCCAse`), c("year", "epi_week")]
+    ```
+
+## Changing column names
+
+As R column names are used very often, so they must have “clean” syntax.
+
+-   Short names No spaces (replace with underscores \_ )
+-   No unusual characters (&, #, \<, \>, …)
+-   Similar style nomenclature (e.g. all date columns named like date_onset, date_report, date_death…)
+
+To rename columns, use `rename()` from `dplyr`
+
+```{r , echo=TRUE, results='hide'}
+library(dplyr)
+wor_x <- wor_x %>% 
+  rename(
+    total_malaria = `Total Malaria CCCAse`,
+    total_test = `TOTAL FEVER TESTED`,
+    pf = psml_rdt_or_mcrs_pf_outp,
+    pv = psml_rdt_or_mcrs_pv_outp
+  )
+```
+
+To reorder columns, use `relocate()` from `dplyr`
+
+```{r, echo=TRUE, results='hide'}
+wor_x <- wor_x %>% 
+  relocate(total_test, .before = total_malaria)
+
+```
+
+Before renaming column names, its is always prudent to clean your column names with `janitor::clean_names()`
+
+## Selecting column
+
+-   Use select() from dplyr to select the columns you want to retain.(*This function also helps with re-ordering colums*)
+
+```{r, echo=TRUE, results='hide'}
+wor_x_sub <- wor_x %>%
+  select(year, epi_week, total_malaria)
+```
+
+💡 'tidyselect' helper functions bring powerful ways of handling columns.
+
+```{r, echo=TRUE, results='hide'}
+wor_x_tmlr <- wor_x %>% select(contains("tmlr"))
+wor_x_chr <- wor_x %>% select(where(is.character))
+```
+
+-   select() can also be used to remove a column
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
+library(magrittr)
+wor_x_tmlr %<>% select(-tmlr_outp)
+# OR
+wor_x_tmlr$tmlr_inp <- NULL
+```
+
+## Filtering rows
+
+`filter()` in `dplyr` helps to filter the data frame using specific rows. - Simply filtering the data frame using a logical statement on selected column.
+
+```{r, echo=TRUE, results='hide'}
+wor_x_fltr <- wor_x %>%
+  filter(total_malaria > 10, year == 2020)
+nrow(wor_x_fltr)
+```
+
+-   Filtering out missing values(use built in `drop_na()`
+
+```{r, echo=TRUE, results='hide'}
+wor_x_rm_na <- wor_x %>% drop_na(total_test,total_malaria)
+wor_x_rm_na_2 <- wor_x %>% filter(!is.na(total_test) | !is.na(total_malaria)) 
+```
+
+⚠️ Notice and explain the difference between the above filters
+
+-   Filtering using row number
+
+```{r, echo=TRUE, results='hide'}
+wor_x %>% filter(row_number() %in% 2:20)
+wor_x %>% filter(row_number() == 5)
+```
+
+-   More complex logical statements can be constructed using parentheses `()`, OR `|`, negate `!`, `%in%`, and AND `&` operator
+
+## Creating new variables
+
+-   `mutate()` from dplyr can be used to add new columns/variables and modify existing ones. Ex. Lets compute test positivity and case fatatliy rate
+
+```{r, echo=TRUE, results='hide'}
+wor_x <- wor_x %>%
+  mutate(
+    positivity_rate = (pf + pv) / total_test * 100,
+    cfr = tmlr_inp_dths/total_malaria * 100
+  )
+```
+
+-   Use `case_when()` inside mutate when you are creating a new column based on logical statments
+
+```{r , echo=TRUE, results='hide'}
+wor_x <- wor_x %>%
+  mutate(
+    malaria_category = case_when(
+      total_malaria == 0 ~ "No cases",
+      total_malaria < 5  ~ "Low",
+      total_malaria < 20 ~ "Moderate",
+      TRUE ~ "High"
+    )
+  )
+
+```
+
+-   To replace missing values use mutate to modify the column with a nested `replace_na()`.
+
+```{r , echo=TRUE, results='hide'}
+wor_x_wno_na <- wor_x %>% 
+  mutate(pv = replace_na(pv, 0))
+```
+
+## Grouping and Summarizing data
+
+-   The function `group_by()` from dplyr groups the rows by the unique values in the column specified to it.
+-   There might be no visible change in the data until next verbs are passed.
+
+```{r, echo=TRUE, results='hide'}
+wor_x_grpd <- wor_x %>% group_by(year)
+wor_x_grpd # Notice the group appearing
+```
+
+-   To simply count the occurence in the group.
+
+```{r, echo=TRUE, results='hide'}
+wor_x %>% group_by(year) %>% tally()
+```
+
+-   On an ungrouped data frame, the summary statistics will be calculated from all rows.
+
+```{r, echo=TRUE, results='hide'}
+# Summarize with out grouping
+wor_x %>% 
+  summarise(
+    total_case = sum(total_malaria, na.rm = T),
+    med_test = median(total_test, na.rm = T)
+    )
+```
+
+------------------------------------------------------------------------
+
+-   Applying `summarise()` to grouped data produces those summary statistics for each group.
+
+```{r, echo=TRUE, results='hide'}
+wor_x_year <- wor_x %>%
+  group_by(year) %>%
+  summarize(
+    total_cases = sum(total_malaria, na.rm = TRUE),
+    total_test = sum(total_test, na.rm = TRUE),
+    pf = sum(pf, na.rm = TRUE),
+    pv = sum(pf, na.rm = TRUE),
+    positivity = mean((pf + pv)/total_test * 100, na.rm = TRUE)
+  )  %>% ungroup()
+
+```
+
+⚠️ Make sure to ungroup your data after completing goruped operations.
+
+-   You can arrange data frames using `arrange()` of `dplyr`
+
+```{r, echo=TRUE}
+wor_x_year %>% arrange(-positivity)
+```
+
+## Suggested reading areas (for data cleaning/handing)
+
+-   `pivot_longer()` and `pivot_wider`
+-   Handling dates (`lubridate` package )
+-   Joining data ( `left_join()`, `inner_join()` and `full_join()`)
+-   Handling characters and strings (stringr)
+-   Basics of writing functions
+
+## Exercise - 1 hour
+
+```{r, include=FALSE}
+mal_dat <- import(here("raw_data","mal_burden_2025_week_4_to_21.xlsx" ), which = 2,
+                  skip = 2)
+```
+
+The malaria data shared contains the aggregate burden of malaria in national woredas from week 4 to week 25 2025. Using the data set do the following.(*Make sure to clearly organize your script with appropriate comments and sections*)
+
+1.  Import and do basic exploration of the data set.
+2.  Clean the column names and rename as needed.
+3.  Count the number of unique regions, zones and woredas.
+4.  Select only `region`, `g_name`, `total_case`, and `test` columns and export it as a csv file.
+5.  Calculate the positivity and case fatality of each woreda.
+6.  Filter for the following and export them as an xlsx file:
+    -   Woredas with total cases above 20,000 and test positivity above 40 %
+
+    -   Records where tests are missing (`NA`).
+
+    -   A specific region of interest (e.g. “Amhara”).
+7.  Summarize the data by region and calculate regional level Total malaria case, Tota test, Total death and Positivity rate.
+
+------------------------------------------------------------------------
+
+<img src="images/logo.png" alt="CSID NET Ethiopia"/>

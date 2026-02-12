@@ -1,0 +1,21 @@
+Analysis notes 
+
+1. Just did glazing of the data in excel …trying to understand the variables 
+
+renamed one variable to case_new (which has the main outcome)
+Corrected rubella positive excel logic 
+
+
+
+To do after starting the analysis in R
+* Define the case columns 
+* Merge the date seen and date of sample taken 
+
+
+Exploratory analysis ideas
+* See the difference between date of onset and facility visit (and probability of being a case)
+
+
+
+Recommendations for predictive model
+* 
