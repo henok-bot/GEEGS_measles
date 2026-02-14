@@ -1,10 +1,31 @@
-### Measles LL data basic exploration - Henok T
-### 12 Feb 2026
+---
+title: "Measles Linelist exploratory review + Suggested way forwards"
+format: # pdf  
+  revealjs:
+    transition: slide
+    slide-number: true
+    center: false
+    ratio: "16:9"
+    css: styles/reveal-compact.css
+theme: simple
+editor: visual
+execute: 
+  echo: true
+  warning: false
+  include: true
+  error: false
+---
+
+## Environmental set up and Data importing
+
+```{r}
+#| label: setup
+#| echo: true
+#| code-fold: true
+#| summary: "Load packages and clean data"
 
 
-
-# Pakcages, themes and functions ----
-source("scripts/0_functions.R")
+source("/Users/henoktadesse/Library/CloudStorage/OneDrive-ITG/Documents/Hanko 2/R projects/GEEGS_measles/scripts/0_functions.R")
 pacman::p_load(epikit)
 custom_theme <- 
     theme_minimal(base_family = "Arial") +
@@ -28,18 +49,45 @@ custom_theme <-
 # Data import and cleaning -------- 
 ## Import data
 
-msls <- import(here("Measles CBR_Linelist data 123.xlsx"))
+msls <- import(here("/Users/henoktadesse/Library/CloudStorage/OneDrive-ITG/Documents/Hanko 2/R projects/GEEGS_measles/Measles CBR_Linelist data 123.xlsx"))
 glimpse(msls)
+
+```
+
+---------
+```{r}
+#| label: basic cleaning and exploring data
+#| echo: true
+#| code-fold: true
+#| summary: "Seeing the data and "
 
 msls <- msls |> clean_names()
 skimr::skim(msls)
+```
+
+-----
+
+```{r}
+#| label: Taking a closer look
+#| echo: true
+#| code-fold: true
+#| summary: "Looking closely at the inconsistent data "
+
+unique(msls$sex)
+unique(msls$region)
+unique(msls$case_type)
+
+```
+
+---------
+
+```{r}
+#| label: Doing the data cleaning and data handling here
+#| echo: true
+#| code-fold: true
+#| summary: "doing all the fixes "
 
 
-## Seeing data and basic cleaning
-
-
-
-# 1. Cleaning Categorical Variables
 clean_msls <- msls %>%
   mutate(
     # Convert Sex to uppercase to merge "f"/"F" and "m"/"M"
@@ -56,15 +104,6 @@ clean_msls <- msls %>%
   )
 
 clean_msls <- clean_msls |> mutate(case_status = if_else(case_type == "Discarded","not_case", "case"))
-# Verification step: Check the cleaning results
-clean_msls %>% count(sex)
-clean_msls %>% count(region)
-clean_msls %>% count(case_type)
-unique(clean_msls$case_status)
-
-
-# Calculating the time interval 
-
 clean_msls <- clean_msls %>%
   mutate(
     date_seeking_care = pmin(date_seen_at_health_facility, 
@@ -78,12 +117,18 @@ clean_msls <- clean_msls %>%
   mutate(
     delay_onset_to_care = ifelse(delay_onset_to_care < 0, NA, delay_onset_to_care)
   )
+glimpse(clean_msls)
+```
 
-# Summary of the new delay variable to check distribution
-summary(clean_msls$delay_onset_to_care)
+## Exploratory data review
 
+```{r}
+#| label: tbl-linelist-content
+#| echo: true
+#| code-fold: true
+#| summary: "doing all the fixes "
+#| tbl-cap: "Classification of cases in Measles linelist, 2023"
 
-# Line list summary 
 clean_msls |> tabyl(case_type) |> 
   arrange(-n) |> # mutate(percent = round(percent, 2)) |> 
   adorn_pct_formatting() |> 
@@ -93,7 +138,17 @@ clean_msls |> tabyl(case_type) |>
     caption = "Classification of cases in Measles linelist, 2023"
   ) |> 
   flextable::autofit() 
- 
+```
+
+------------
+
+```{r}
+#| label: tbl-caseby-region
+#| echo: true
+#| code-fold: true
+#| summary: ""
+#| tbl-cap: "Regional distribution of Measles cases by case type, 2023"
+
 
 # Region of cases 
 clean_msls %>% filter(!case_type %in% c("Discarded", "Pending")) |> 
@@ -103,21 +158,31 @@ clean_msls %>% filter(!case_type %in% c("Discarded", "Pending")) |>
   adorn_pct_formatting() %>% 
   adorn_ns(position = "front")  %>% # this is necessary to print as image
   flextable::flextable() %>%    # convert to pretty image
-   flextable::set_caption(
-    caption = "Regional distribution of Measles cases by case type, 2023"
-  ) |> 
   flextable::autofit()          # format to one line per row 
+```
 
+--------
 
+```{r}
+#| label: creating age category
+#| echo: true
+#| code-fold: true
+#| summary: ""
 
-clean_msls <- clean_msls |> mutate(age_cat = epikit::age_categories(age_years, breakers = c(0,5,10,15,20)))
 hist(clean_msls$age_years)
-unique(clean_msls$age_cat)
+clean_msls <- clean_msls |> mutate(age_cat = epikit::age_categories(age_years, breakers = c(0,5,10,15,20)))
+unique(clean_msls$age_cat) 
+```
 
+--------
 
-
-# Case by age and sex table 
-clean_msls %>%
+```{r}
+#| label: tbl-age-sex
+#| echo: true
+#| code-fold: true
+#| summary: ""
+#| tbl-cap: "Age and sex distribution of measles cases, 2023"
+clean_msls %>% filter(!case_type %in% c("Discarded", "Pending")) |> 
   tabyl(age_cat, sex) %>% 
   adorn_totals(where = "col") %>% 
   adorn_percentages(denominator = "col") %>% 
@@ -129,26 +194,17 @@ clean_msls %>%
     placement = "combined") %>% # this is necessary to print as image
   flextable::flextable() %>%    # convert to pretty image
   flextable::autofit()          # format to one line per row 
+```
 
-# Case type with vaccine dose table 
-clean_msls |> 
-  tabyl()
+-------
 
-# case with 
-clean_msls %>%
-  tabyl(age_cat, sex) %>% 
-  adorn_totals(where = "col") %>% 
-  adorn_percentages(denominator = "col") %>% 
-  adorn_pct_formatting() %>% 
-  adorn_ns(position = "front") %>% 
-  adorn_title(
-    row_name = "Age Category",
-    col_name = "Gender",
-    placement = "combined") %>% # this is necessary to print as image
-  flextable::flextable() %>%    # convert to pretty image
-  flextable::autofit()          # format to one line per row 
+```{r}
+#| label: fig-bar-plot-age-vdose
+#| echo: true
+#| code-fold: true
+#| summary: ""
+#| fig-cap: "Measles Vaccine status by age group, 2023"
 
-# Vaccine dose with outcome 
 
 clean_msls %>%                      # begin with linelist
   count(vdose_category, age_cat) %>%     # group and tabulate counts by two columns
@@ -159,8 +215,19 @@ clean_msls %>%                      # begin with linelist
         fill = age_cat,           # map age_cat to the fill
         y = n)) +                  # map the counts column `n` to the height
   theme_minimal()
+```
 
-# 3. Epi Curve Visualization
+-------------
+
+```{r}
+#| label: fig-epi-curve-onst
+#| echo: true
+#| code-fold: true
+#| summary: ""
+#| fig-cap: "Measles case Epicurve by date of onset, 2023"
+
+
+#. 3. Epi Curve Visualization
 # Define breaks by week for the x-axis
 # 
 # Recommended: Use raw data + as.Date()
@@ -187,7 +254,7 @@ epi_curve_onst <- clean_msls %>%
   ) +
   scale_y_continuous(expand = c(0,0)) +
   labs(
-    title = "Measles Epidemic Curve (Confirmed Cases)",
+    #title = "Measles Epidemic Curve (Confirmed Cases)",
     subtitle = "Daily aggregation of cases based on Date of Onset",
     x = "Date of Symptom Onset",
     y = "Number of Cases"
@@ -198,10 +265,17 @@ epi_curve_onst <- clean_msls %>%
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
-print(epi_curve)
+print(epi_curve_onst)
+```
 
-ggsave("outputs/measles Epicurve_v2.png", plot = epi_curve,
-       width = 12, height = 6, dpi = 900, bg = "white")
+--------
+
+```{r}
+#| label: fig-epi-curve-vist
+#| echo: true
+#| code-fold: true
+#| summary: ""
+#| fig-cap: "Measles case Epicurve by date of onset, 2023"
 
 epi_curve_vist <- clean_msls %>%
   filter(case_status == "case") %>% 
@@ -236,8 +310,11 @@ epi_curve_vist <- clean_msls %>%
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
+print(epi_curve_vist)
+```
 
-
+-----
+```{r}
 # Exploring delay days 
 summary(clean_msls$delay_onset_to_care)
 
@@ -249,5 +326,85 @@ hist(
   col = "lightblue",
   breaks = 20 # Optional: finer bins
 )
+```
+
+# Predictive modeling - examples and propsed appraoches
+
+## Malaria time-series forecasting 
+<img src="images/Mal_forecast_week 2, 2025.png" alt="Malaria forecast example - timeseries"/>
+
+------
+
+<img src="images/epidemia_example.png" alt="Malaria forecast example - dlnm model"/>
+
+## Blue print for role of AI in public healht
+
+<img src="images/ai_use_kreamer.png" alt="Role of AI in public health"/>
+*Kraemer et al. 2025, [The role of AI in public health](https://www.nature.com/articles/s41586-024-08564-w), Nature.*
+
+-----------
+
+<img src="images/ai_hig_level_kraemer.png" alt="Role of AI in public health"/>
+*Kraemer et al. 2025, [The role of AI in public health](https://www.nature.com/articles/s41586-024-08564-w), Nature.*
+
+------------
 
 
+## Measles Nowcasting
+
+::: {.columns}
+::: {.column width="70%"}
+![](images/nowcasting_example.jpg)
+:::
+
+::: {.column width="30%"}
+**Key Methodology:** 
+
+-  Real-time adjustment of reporting delays using GAM model
+-  Utilized during epidemic response.  
+
+*Maria L. et al. 2023/24, [Journal of Infection](https://doi.org/10.1016/j.jinf.2025.106569).*
+:::
+:::
+
+## Measles Risk Prediction Modeling
+
+::: {.columns}
+::: {.column width="60%"}
+![](images/us_measles_risk.jpg)
+:::
+
+::: {.column width="40%"}
+
+-  **Model Type:**  XGBoost Risk Classification (8 models compared in prior work)
+-  **Application:**  Identifying high-risk counties for targeted preventive/prepardness intervention
+
+*Kujawski et al. 2024, [Vaccine](https://doi.org/10.1016/j.vaccine.2024.126289).*
+:::
+:::
+
+
+
+## Possible next steps
+
+* Refine the question at hand  **risk stratification**, **burden forecasting**, and **nowcasting**—and potentially select candidate model architectures.
+* Clean retrospective line lists and align prospective surveillance streams to ensure congruent spatio-temporal definitions.
+* Systematically review and collate environmental/demographic predictors, harmonizing them to a unified scale (e.g., weekly/woreda).
+* Benchmark diverse algorithms or approaches (only ML or statistical also) to establish baseline performance and identify dominant risk factors.
+*  Consider developing a reproducible pipeline to translate static models into near real-time decision support tools.
+
+--------
+
+```{mermaid}
+%%| fig-width: 50
+%%| echo: false
+flowchart LR
+    A[Define goal] --> B{Data cleaning and preparation}
+    B -->|Spatial Risk| C[XGBoost/RF/TFT]
+    B -->|Time Series| D[ARIMA/Prophet/Foundational models]
+    C & D --> E[Validation]
+    E --> F[Operational<br>Dashboard]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+```

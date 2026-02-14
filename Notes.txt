@@ -19,3 +19,11 @@ Exploratory analysis ideas
 
 Recommendations for predictive model
 * 
+
+Presentation outline
+
+* Show the steps taken and the parts which need to be done .... show casing the code and outputs
+* Overall AI use lay out in Publc healht (forecasting and modeling examples) 
+* Two recommende works 
+
+* Next steps
